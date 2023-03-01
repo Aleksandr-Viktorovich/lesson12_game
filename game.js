@@ -2,19 +2,52 @@
 
 (() => {
 const FIGURES_rus = ['камень', 'ножницы', 'бумага'];
+const FIGURES_ENG = ['rock', 'scissors', 'paper'];
+
 const getRandom = (one, two) => {
   let randomRes = one + Math.random() * (two - one);
   return Math.floor(randomRes);
 };
-const game = () => {
+
+  const langObj = {
+    'RU': {
+      startGame: 'камень, ножницы, бумага?',
+      validValue: 'Не корректное значение!',
+      exit: 'Ты уверен?',
+      endGame: 'СЧЕТ:',
+    },
+    'ENG': {
+      startGame: 'rock, scissors, paper?',
+      validValue: 'Please enter a valid value',
+      exit: 'You are sure?',
+      endGame: 'TOTAL:'
+    },
+  };
+
+const game = (language) => {
   const result = {
     user: 0,
     SkyNet: 0,
     get gameResult () {
-      return `СЧЕТ: \nSkyNet-${result.SkyNet} \nКожаный-${result.user}`;
+      return `\nSkyNet-${result.SkyNet} \nКожаный-${result.user}`;
     },
   };
+
+  const lang = language === 'EN' || language === 'ENG' ? FIGURES_ENG : FIGURES_rus;
+
   return function start () {
+
+    const notification = () => {
+      let notification;
+      if (language === 'ENG' || language === 'EN') {
+        notification = langObj.ENG;
+      } else {
+        notification = langObj.RU;
+      }
+      return notification;
+    };
+
+    const langSelect = notification();
 
     const skyNetPlay = () => {
       let skyResult = '';
@@ -33,51 +66,50 @@ const game = () => {
     };
      const userPlay = () => {
        let userResult = '';
-       let userItem = prompt('Введите камень, ножницы, бумага', '');
+       let userItem = prompt(`${langSelect.startGame}`, '');
         if (userItem) {
-         if (userItem === FIGURES_rus[0] || userItem === FIGURES_rus[1] || userItem === FIGURES_rus[2]) {
+         if (userItem === FIGURES_rus[0] || userItem === FIGURES_rus[1] || userItem === FIGURES_rus[2] ||
+           userItem === FIGURES_ENG[0] || userItem === FIGURES_ENG[1] || userItem === FIGURES_ENG[2]) {
            userResult = userItem
          } else {
-           alert('Введи корректное значение!');
+           alert(`${langSelect.validValue}`);
            return userResult;
          }
        }
         if (userItem === null) {
-          let who = confirm('Ты уверен?');
+          let who = confirm(`${langSelect.exit}`);
           if (who) {
-            return alert(result.gameResult);
-          } else {
-            return userPlay()
+            return alert(`${langSelect.endGame} ${result.gameResult}`);
           }
         }
         return userResult
    };
+    let inputUser = userPlay()
+    let inputSky = skyNetPlay()
      const win = () => {
-       let gameRes = userPlay() + skyNetPlay()
+
+       let gameRes = inputUser + inputSky
        console.log(gameRes)
        switch (gameRes) {
-         case 'каменькамень':
-         case 'ножницыножницы':
-         case 'бумагабумага':
+         case 'каменькамень' || 'rockrock':
+         case 'ножницыножницы' || 'scissorsscissors':
+         case 'бумагабумага' || 'paperpaper':
            return  result;
 
-         case 'каменьножницы':
-         case 'бумагакамень':
-         case 'ножницыбумага':
+         case 'каменьножницы' || 'rockscissors':
+         case 'бумагакамень' || 'paperrock':
+         case 'ножницыбумага' || 'scissorspaper':
            return result.user++;
 
-         case 'каменьбумага':
-         case 'бумаганожницы':
-         case 'ножницыкамень':
+         case 'каменьбумага' || 'prockaper':
+         case 'бумаганожницы' || 'paperscissors':
+         case 'ножницыкамень' || 'scissorsrock':
            return result.SkyNet++;
        }
      }
-      win()
-    console.log(result.user)
-    console.log(result.SkyNet)
-
-    if (userPlay()) {
-      return start()
+      win();
+    if (inputUser) {
+      return start();
     }
   };
 };
